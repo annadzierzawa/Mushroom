@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,11 +20,13 @@ namespace Mushroom
         static int iterator = 0;
         static double[][] dataset;
         static Reader reader;
+        static DataDivison datadivision= new DataDivison();
+        static int lengthOfTrainigData;        //calling the function that counts the size of training data
+
         public ProgramManager()
         {
             
         }
-
 
         //Reset (re-initialize) weights and biases of the neural network
         public static void reset()
@@ -34,13 +37,15 @@ namespace Mushroom
         }
         public static void Testing()
         {
+            double[][] dataset = reader.ReadData();
+            double[][] testingData = datadivision.Skip(dataset, lengthOfTrainigData);    //creating an array of test data in the right size. The skip function skips the amount of data given as an argument and returns the others
             Network nn = new Network();
             while (iterator < 8124)
             {
                 iterator++;
                 
-                nn.Calculate(reader.ReadNextRow(dataset));  // napisac czytanie jednego wiersza
-                int correct = reader.ReadNextClassification(dataset); // czytanie ostaniej kolumny wiersza
+                nn.Calculate(reader.ReadNextRow(testingData));  // napisac czytanie jednego wiersza
+                int correct = reader.ReadNextClassification(testingData); // czytanie ostaniej kolumny wiersza
                 double certainty = -99.0;
                 int guess = -1;
 
@@ -61,6 +66,8 @@ namespace Mushroom
         {
             reader = new Reader();
             dataset = reader.ReadData();
+            lengthOfTrainigData = datadivision.GetPartOfData(70, dataset);
+            double[][] trainingData = datadivision.Take(dataset, lengthOfTrainigData);         //creating a board with training data in the right size
             for (int i = 0; i < SaveState; i++)
             {
                 List<Network> ntw = new List<Network>();
@@ -69,8 +76,8 @@ namespace Mushroom
                 {
                     //B/c ii may change and this code can't let that happen
                     int copyOfJ = j;
-                    double[] row = reader.ReadNextRow(dataset);
-                    int correct = reader.ReadNextClassification(dataset);
+                    double[] row = reader.ReadNextRow(trainingData);
+                    int correct = reader.ReadNextClassification(trainingData);
                     ntw.Add(new Network());
                     tasks[copyOfJ] = Task.Run(() => ntw[copyOfJ].Backprop(row, correct));
                 }

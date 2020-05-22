@@ -12,7 +12,7 @@ namespace Mushroom
         static int resolution = 22;
         static int iterator = 0;
 
-        public double[][] ReadData()
+        public double[][] ReadData() //Read csv file w/o first row and first column
         {
             string[] lines = File.ReadAllLines(@"D:\Semestr 4\Systemy sztucznej inteligencji\REPOZYTORIUM\Mushroom\Mushroom Classification\data\mushroom2.csv");
 
@@ -27,7 +27,7 @@ namespace Mushroom
                 {
                     if (tmp[j].Length == 0)
                     {
-                        tmp[j] = "0.1234";
+                        tmp[j] = "0.1234"; //sometimes there is a column with no value so we replaced empty cell of csv file with value 0.1234
                     }
 
                     data[i - 1][j] = Convert.ToDouble(tmp[j].Replace('.', ','));
@@ -36,7 +36,7 @@ namespace Mushroom
             return data;
         }
 
-        public double[] ReadNextRow(double[][] baseData)
+        public double[] ReadNextRow(double[][] baseData) //reading all columns except the last one from every single row
         {
             double[] row = new double[21];
 
@@ -49,7 +49,7 @@ namespace Mushroom
             return row;
         }
 
-        public int ReadNextClassification(double[][] baseData)
+        public int ReadNextClassification(double[][] baseData) //reading value from the last one column of every single row
         {
             int i = iterator;
             if (iterator < baseData.Length - 1)

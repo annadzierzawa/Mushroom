@@ -8,11 +8,12 @@ namespace Mushroom
 {
     class Program
     {
-        public static bool trainMode = true;
+        public static bool trainMode = false;
 
         static void Main(string[] args)
         {
-            NetworkParametersHandler.ReadWeightBias();             //Reading network parameters form file
+             NetworkParametersHandler.ReadWeightBias();             //Reading network parameters form file
+            //ProgramManager.reset();
             if (trainMode)
             {
                 while (!ProgramManager.finished)
@@ -24,6 +25,7 @@ namespace Mushroom
 
 
             Console.WriteLine("Finished");
+            Console.ReadKey();
         }
     }
 }

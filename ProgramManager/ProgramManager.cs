@@ -37,10 +37,14 @@ namespace Mushroom
         }
         public static void Testing()
         {
+            int correctAnswersCount = 0;
+            reader = new Reader();
             double[][] dataset = reader.ReadData();
-            double[][] testingData = datadivision.Skip(dataset, lengthOfTrainigData);    //creating an array of test data in the right size. The skip function skips the amount of data given as an argument and returns the others
+            lengthOfTrainigData = datadivision.GetPartOfData(70, dataset);
+            //double[][] testingData = datadivision.Skip(dataset, lengthOfTrainigData);    //creating an array of test data in the right size. The skip function skips the amount of data given as an argument and returns the others
+            double[][] testingData =dataset.Skip(lengthOfTrainigData).ToArray();    //creating an array of test data in the right size. The skip function skips the amount of data given as an argument and returns the others
             Network nn = new Network();
-            while (iterator < 8124)
+            while (iterator < testingData.Length)
             {
                 iterator++;
                 
@@ -49,7 +53,7 @@ namespace Mushroom
                 double certainty = -99.0;
                 int guess = -1;
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     if (nn.OutputValues[i] > certainty)
                     {
@@ -58,9 +62,13 @@ namespace Mushroom
                     }
                 }
                 avg = (avg * (iterator / (iterator + 1))) + ((guess == correct) ? (1 / iterator) : 0.0);
-                Console.WriteLine("Correct: " + correct + " Correct? " + (guess == correct ? "Yes " : "No ") + " %Correct: " + Math.Round(avg, 10).ToString().PadRight(12)  /* + " Certainty " + Math.Round(certainty, 10)*/ );
-                ////nn.Dispose();
+                Console.WriteLine("Correct: " + correct + " Correct? " + (guess == correct ? "Yes " : "No "));
+                if (guess == correct)
+                {
+                    correctAnswersCount++;
+                }
             }
+            Console.WriteLine("Percentage of correct answers = " + ((double)correctAnswersCount/(double)iterator)*100.0);
         }
         public static void Training()
         {
@@ -85,11 +93,11 @@ namespace Mushroom
                 //Syncronously descend
                 foreach (Network nn in ntw)
                 {
-                    nn.Descend();
+                    nn.Descent();
                     //nn.Dispose();
                 }
                 //Updating the weights with the avg gradients
-                Network.Descend(batchsize);
+                Network.Descent(batchsize);
                 UserValidation();
             }
             //Save weights and biases
@@ -130,16 +138,9 @@ namespace Mushroom
             avgerror = (((double)iterator / ((double)iterator + 1)) * avgerror) + ((1 / (double)iterator) * error);
             avg = (avg * ((double)iterator / ((double)iterator + 1))) + ((guess == correct) ? (1 / (double)iterator) : 0.0);
 
-            //Some safety code which is currently disabled
-            //if (avgerror > maxavg && iterator > 300) { maxavg = avgerror; }
-            //if (avgerror > maxavg * 10 && iterator > 300) { finished = true; }
-
             //Print various things to the console for verification that things are nominal
-            Console.WriteLine("Correct: " + correct + "\t" + " Guess: " + guess + "\t" + " Correct? " + (guess == correct ? "Yes " : "No ").ToString().PadRight(3) + "\t" /*+ "Certainty: " + Math.Round(certainty, 5).ToString().PadRight(7)*/
-                + " %Correct: " + "\t" + Math.Round(avg, 5).ToString().PadRight(7) /*+ " Avg error: " + Math.Round(avgerror, 5).ToString().PadRight(8) + " Avg gradient: " + Network.AvgGradient, 15*/);
+            Console.WriteLine("Correct: " + correct + "\t" + " Guess: " + guess + "\t" + " Correct? " + (guess == correct ? "Yes " : "No ").ToString().PadRight(3) + "\t"  + " %Correct: " + "\t" + Math.Round(avg, 5).ToString().PadRight(7));
 
-            //Dispose of the neural network (may not be necessary)
-            // nn.Dispose();
             //Reset the console data every few iterations to ensure up to date numbers
             if (iterator > 1000)
             {

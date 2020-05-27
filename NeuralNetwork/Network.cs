@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mushroom.NeuralNetwork
 {
-    public class Network : IDisposable
+    public class Network /*: IDisposable*/
     {
         public static int Epoch = 0;                //Number of iteration
 
@@ -16,7 +16,7 @@ namespace Mushroom.NeuralNetwork
         public static int Depth = HiddenDepth + 2;          //Hiddendepth + input [1] + output [1]- Number of all layers  
         public static int HiddenCount = 19;                  //Count of neurons per layer
         public static int OutputCount = 2;                 //Count of output neurons
-        public static int Resolution = 21;         //or 22         //Number of pixels in one 'row'. Our pitures are 28X28 - PK
+        public static int Resolution = 21;                //Number of pixels in one 'row'. Our pitures are 28X28 - PK
         public static int InputCount = Resolution;
         
         
@@ -66,7 +66,7 @@ namespace Mushroom.NeuralNetwork
        
         public double[] OutputValues = new double[OutputCount];
         
-        public static void Descend(int batchsize)
+        public static void Descent(int batchsize)
         {
             
             AvgGradient = 0;                //Reset avg gradient
@@ -127,7 +127,7 @@ namespace Mushroom.NeuralNetwork
         }
         //Stochastic descent (all code below is done according to formulas)
         //This adds each NN's gradients to the avg
-        public void Descend()
+        public void Descent()
         {
             //Input
             for (int i = 0; i < InputCount; i++)
@@ -288,7 +288,7 @@ namespace Mushroom.NeuralNetwork
                 //Calculate gradient
                 for (int j = 0; j < Resolution; j++)
                 {
-                    InputWeightGradient[k, j] = row[j / Resolution/*, j - ((j / Resolution) * Resolution)*/] * ActivationFunctions.TanhDerriv(InputZVals[k]) * InputErrorSignals[k];
+                    InputWeightGradient[k, j] = row[j / Resolution] * ActivationFunctions.TanhDerriv(InputZVals[k]) * InputErrorSignals[k];
                 }
             }
         }
@@ -303,15 +303,12 @@ namespace Mushroom.NeuralNetwork
             OutputZVals = new double[OutputCount]; 
             OutputValues = new double[OutputCount];
 
-            //Random r = new Random();
-            //Random is used for dropout of neurons, but said feature is currently disabled for efficiency reasons
-
             //Input
             for (int k = 0; k < InputCount; k++)
             {
                 for (int j = 0; j < (Resolution); j++)
                 {
-                    InputZVals[k] += ((InputWeights[k, j] + InputWeightMomentum[k, j]) * row[j / Resolution/*, j - ((j / Resolution) * Resolution)*/]) + InputBiases[k];
+                    InputZVals[k] += ((InputWeights[k, j] + InputWeightMomentum[k, j]) * row[j / Resolution]) + InputBiases[k];
                 }
                 InputValues[k] = ActivationFunctions.Tanh(InputZVals[k]);
             }
@@ -372,7 +369,7 @@ namespace Mushroom.NeuralNetwork
                         for (int j = 0; j < InputCount; j++)
                         {
                             //Lecun initialization (draw a rand num from neg limit to pos limit where lim is the sqrt term)
-                            FirstHiddenWeights[i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (InputCount * InputCount));
+                            FirstHiddenWeights[i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (InputCount /** InputCount*/));
                         }
                     }
                     else
@@ -380,7 +377,7 @@ namespace Mushroom.NeuralNetwork
                         for (int j = 0; j < HiddenCount; j++)
                         {
                             //Lecun initialization (draw a rand num from neg limit to pos limit where lim is the sqrt term)
-                            HiddenWeights[l - 1, i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (HiddenCount * HiddenCount));
+                            HiddenWeights[l - 1, i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (HiddenCount /** HiddenCount*/));
                         }
                     }
                 }
@@ -391,14 +388,9 @@ namespace Mushroom.NeuralNetwork
                 for (int j = 0; j < HiddenCount; j++)
                 {
                     //Lecun initialization (draw a rand num from neg limit to pos limit where lim is the sqrt term)
-                    OutputWeights[i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (double)(HiddenCount * HiddenCount));
+                    OutputWeights[i, j] = (r.NextDouble() > 0.5 ? -1 : 1) * r.NextDouble() * Math.Sqrt(3.0 / (double)(HiddenCount /** HiddenCount*/));
                 }
             }
-        }
-
-        public void Dispose()
-        {
-           
         }
     }
 }

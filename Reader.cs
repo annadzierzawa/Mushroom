@@ -40,6 +40,15 @@ namespace Mushroom
         {
             double[] row = new double[21];
 
+            int i = iterator;
+            if (iterator < baseData.Length - 1)
+            {
+                iterator++;
+            }
+            else
+            {
+                iterator = 0;
+            }
 
             for (int j = 1; j < baseData[iterator].Length - 2; j++)
             {

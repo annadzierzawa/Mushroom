@@ -12,7 +12,7 @@ namespace Mushroom
         static int resolution = 22;
         static int iterator = 0;
 
-        public double[][] ReadData() //Read csv file w/o first row and first column
+        public double[][] ReadData()
         {
             string[] lines = File.ReadAllLines(@"D:\Semestr 4\Systemy sztucznej inteligencji\REPOZYTORIUM\Mushroom\Mushroom Classification\data\mushroom2.csv");
 
@@ -27,11 +27,25 @@ namespace Mushroom
                 {
                     if (tmp[j].Length == 0)
                     {
-                        tmp[j] = "0.1234"; //sometimes there is a column with no value so we replaced empty cell of csv file with value 0.1234
+                        tmp[j] = "0.1234";
                     }
 
                     data[i - 1][j] = Convert.ToDouble(tmp[j].Replace('.', ','));
                 }
+            }
+            return Shuffle(data);
+        }
+
+        static double[][] Shuffle(double[][] data)
+        {
+            Random rnd = new Random();
+            int n = data.Length;
+            for (int i = 0; i < (n - 1); i++)
+            {
+                int r = i + rnd.Next(n - i);
+                double[] t = data[r];
+                data[r] = data[i];
+                data[i] = t;
             }
             return data;
         }
